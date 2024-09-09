@@ -1,53 +1,73 @@
-import * as anchor from "@coral-xyz/anchor"
-import { Program } from "@coral-xyz/anchor"
-import { expect } from "chai"
-import { AnchorCounter } from "../target/types/anchor_counter"
+import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import { expect } from "chai";
+import { AnchorCounter } from "../target/types/anchor_counter";
+import { PublicKey } from "@solana/web3.js";
 
-describe("anchor-counter", () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env()
-  anchor.setProvider(provider)
+describe("Anchor counter", () => {
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
 
-  const program = anchor.workspace.AnchorCounter as Program<AnchorCounter>
+  const program = anchor.workspace.AnchorCounter as Program<AnchorCounter>;
+  const counterKeypair = anchor.web3.Keypair.generate();
+  let counterPubkey: PublicKey;
 
-  const counter = anchor.web3.Keypair.generate()
+  before(async () => {
+    counterPubkey = counterKeypair.publicKey;
+  });
 
-  it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods
-      .initialize()
-      .accounts({ 
-        counter: counter.publicKey 
-      })
-      .signers([counter])
-      .rpc()
+  it("initializes the counter", async () => {
+    try {
+      await program.methods
+        .initialize()
+        .accounts({
+          counter: counterPubkey,
+          user: provider.wallet.publicKey,
+        })
+        .signers([counterKeypair])
+        .rpc();
 
-    const account = await program.account["counter"].fetch(counter.publicKey)
-    expect(account.count.toNumber() === 0)
-  })
+      const account = await program.account.counter.fetch(counterPubkey);
+      expect(account.count.toNumber()).to.equal(0);
+    } catch (error) {
+      console.error("Initialization failed:", error);
+      throw error;
+    }
+  });
 
-  it("Incremented the count", async () => {
-    const tx = await program.methods
-      .increment()
-      .accounts({
-        counter: counter.publicKey,
-        user: provider.wallet.publicKey 
-      })
-      .rpc()
+  it("increments the count", async () => {
+    try {
+      await program.methods
+        .increment()
+        .accounts({
+          counter: counterPubkey,
+          user: provider.wallet.publicKey,
+        })
+        .rpc();
 
-    const account = await program.account["counter"].fetch(counter.publicKey)
-    expect(account.count.toNumber() === 1)
-  })
+      const account = await program.account.counter.fetch(counterPubkey);
+      expect(account.count.toNumber()).to.equal(1);
+    } catch (error) {
+      console.error("Increment failed:", error);
+      throw error;
+    }
+  });
 
-  it("Decremented the count", async () => {
-    const tx = await program.methods
-      .decrement()
-      .accounts({ 
-        counter: counter.publicKey 
-      })
-      .rpc()
+  it("decrements the count", async () => {
+    try {
+      await program.methods
+        .decrement()
+        .accounts({
+          counter: counterPubkey,
+          user: provider.wallet.publicKey,
+        })
+        .rpc();
 
-    const account = await program.account["counter"].fetch(counter.publicKey)
-    expect(account.count.toNumber() === 0)
-  })
-})
+      const account = await program.account.counter.fetch(counterPubkey);
+      expect(account.count.toNumber()).to.equal(0);
+    } catch (error) {
+      console.error("Decrement failed:", error);
+      throw error;
+    }
+  });
+});

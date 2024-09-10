@@ -1,6 +1,6 @@
 # Anchor Counter
 
-This project demonstrates a counter program on Solana using the Anchor framework. It includes example code from the "Intro to Anchor" lesson in the Solana Onchain Development course.
+This project demonstrates a counter program on Solana using the Anchor framework. It includes an example code from the "Intro to Anchor" lesson in the Solana Onchain Development course.
 
 ## Prerequisites
 
@@ -45,5 +45,4 @@ anchor test
 ## Notes
 
 - Ensure your Solana validator is running locally before running tests.
-- The test uses the `@solana-developers/helpers` package for airdropping SOL to test accounts.
 - If you encounter any issues, make sure your Anchor.toml and Cargo.toml files are correctly configured for your project.

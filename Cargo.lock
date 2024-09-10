@@ -115,7 +115,6 @@ name = "anchor-counter"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
- "solana-program",
 ]
 
 [[package]]
